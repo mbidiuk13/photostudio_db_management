@@ -38,10 +38,13 @@ BEGIN
     COMMIT;
 END;
 
+SELECT StudentID, LastName, ClassID FROM STUDENT WHERE StudentID = 10;
+
 BEGIN
-    -- Переводимо учня з ID=1 у клас з ID=2
-    TransferStudent(201, 2);
+    TransferStudent(10, 5);
 END;
+
+SELECT StudentID, LastName, ClassID FROM STUDENT WHERE StudentID = 10;
 
 -- Перевіряємо зміну класу
 SELECT STUDENTID, LASTNAME, CLASSID
@@ -73,23 +76,32 @@ SELECT TEACHERID, LASTNAME, PHONENUMBER, EMAIL
 FROM TEACHER
 WHERE TEACHERID = 1;
 
---відрахування учня
-CREATE OR REPLACE PROCEDURE ExpelStudent(
-    p_StudentID IN NUMBER
+--оновлення контактних даних учня
+CREATE OR REPLACE PROCEDURE UpdateStudentContacts(
+   p_StudentID IN NUMBER,
+   p_Email IN VARCHAR2,
+   p_NewPhone IN VARCHAR2
 ) IS
 BEGIN
-    DELETE FROM STUDENT WHERE STUDENTID = p_StudentID;
-    COMMIT;
-    DBMS_OUTPUT.PUT_LINE('Учня відраховано.');
+   UPDATE STUDENT
+   SET EMAIL = p_Email,
+   PHONENUMBER = p_NewPhone
+   WHERE STUDENTID = p_StudentID;
+
+   COMMIT;
+   DBMS_OUTPUT.PUT_LINE('Контактні дані учня успішно оновлено.');
+EXCEPTION
+   WHEN OTHERS THEN
+       DBMS_OUTPUT.PUT_LINE('Помилка при оновленні: ' || SQLERRM);
 END;
+
+SELECT STUDENTID, LASTNAME, EMAIL, PHONENUMBER FROM STUDENT WHERE STUDENTID = 1;
 
 BEGIN
-    -- Видаляємо учня (підставте ID створеного тестового учня)
-    ExpelStudent(201);
+    UpdateStudentContacts(1, 'love_school@gmail.com', '+380991112233');
 END;
 
--- Перевіряємо, що учня більше немає (має бути порожній результат)
-SELECT * FROM STUDENT WHERE LASTNAME = 'Тестовий';
+SELECT STUDENTID, LASTNAME, EMAIL, PHONENUMBER FROM STUDENT WHERE STUDENTID = 1;
 
 --виставлення оцінки
 CREATE OR REPLACE PROCEDURE AddGrade(
